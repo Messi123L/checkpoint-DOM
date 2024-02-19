@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Add your CSS styling here */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .heart-icon {
+            cursor: pointer;
+        }
+
+        .heart-icon.active {
+            color: red;
+        }
+    </style>
+    <title>Shopping Cart</title>
+</head>
+<body>
+    <div id="cart">
+        <!-- Your items will be dynamically added here -->
+    </div>
+
+    <div id="total">
+        <h3>Total: $<span id="total-price">0.00</span></h3>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartContainer = document.getElementById('cart');
+            const totalPriceElement = document.getElementById('total-price');
+
+            // Function to create a cart item
+            function createCartItem(id, name, price) {
+                const cartItem = document.createElement('div');
+                cartItem.classList.add('cart-item');
+                cartItem.dataset.id = id;
+
+                cartItem.innerHTML = `
+                    <span>${name}</span>
+                    <button class="quantity-btn">-</button>
+                    <span class="quantity">1</span>
+                    <button class="quantity-btn">+</button>
+                    <button class="delete-btn">Delete</button>
+                    <span class="heart-icon">❤️</span>
+                    <span class="price">$${price.toFixed(2)}</span>
+                `;
+
+                return cartItem;
+            }
+
+            // Add sample items to the cart
+            const item1 = createCartItem(1, 'Item 1', 10.00);
+            const item2 = createCartItem(2, 'Item 2', 20.00);
+
+            cartContainer.appendChild(item1);
+            cartContainer.appendChild(item2);
+
+            // Your event listeners and functions for handling interactions go here
+
+            // Function to update the total price
+            function updateTotalPrice() {
+                let total = 0;
+
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    const quantity = parseInt(item.querySelector('.quantity').textContent);
+                    const price = parseFloat(item.querySelector('.price').textContent.slice(1));
+                    total += quantity * price;
+                });
+
+                totalPriceElement.textContent = total.toFixed(2);
+            }
+
+            // Event delegation for dynamic buttons
+            cartContainer.addEventListener('click', function (event) {
+                const target = event.target;
+                const cartItem = target.closest('.cart-item');
+
+                if (target.classList.contains('quantity-btn')) {
+                    // Handle quantity button click
+                    updateQuantity(cartItem, target.textContent);
+                    updateTotalPrice();
+                } else if (target.classList.contains('delete-btn')) {
+                    // Handle delete button click
+                    deleteItem(cartItem);
+                    updateTotalPrice();
+                } else if (target.classList.contains('heart-icon')) {
+                    // Handle heart icon click
+                    toggleLike(target);
+                }
+            });
+
+            // Function to update quantity
+            function updateQuantity(cartItem, action) {
+                const quantityElement = cartItem.querySelector('.quantity');
+                let quantity = parseInt(quantityElement.textContent);
+
+                if (action === '+' && quantity < 99) {
+                    quantity++;
+                } else if (action === '-' && quantity > 1) {
+                    quantity--;
+                }
+
+                quantityElement.textContent = quantity;
+            }
+
+            // Function to delete an item
+            function deleteItem(cartItem) {
+                cartItem.parentNode.removeChild(cartItem);
+            }
+
+            // Function to toggle like status
+            function toggleLike(heartIcon) {
+                heartIcon.classList.toggle('active');
+            }
+
+            // Initial total price update
+            updateTotalPrice();
+        });
+    </script>
+</body>
+</html>
+
